@@ -139,12 +139,12 @@ public:
 }; 
 
 // Function Prototypes
-void initializeDeck(vector<Card> &deck);
-Card drawCard(Environment &env);
+//void initializeDeck(vector<Card> &deck);
+//Card drawCard(Environment &env);
 void dealer(Environment &env, vector<Player> &players, int numCards);
 void displayHand(const vector<Card> &hand);
 bool playTurn(Player &player, Environment &env);
-void shuffle(vector<Card> &deck);
+//void shuffle(vector<Card> &deck);
 
 // Main Function
 int main() {
@@ -164,10 +164,10 @@ int main() {
     }
 
     // CALL initializeDeck
-    initializeDeck(env.drawPile);
+    env.initializeDeck();
     
     // CALL shuffleDeck
-    shuffle(env.drawPile);
+    env.shuffleDeck();
 
     // Initialize players and deal cards
     for (int i = 0; i < numPlayers; ++i) {
@@ -179,16 +179,14 @@ int main() {
     dealer(env, players, numCards);
 
     // Set starting card for discard pile
-    env.discardPile.push_back(drawCard(env));
-    env.currentPlayer = 0;
-    env.direction = 1;
+    env.addToDiscardPile(env.drawCard());
 
     // Game loop
     bool gameOver = false;
 
     while (!gameOver) {
-        Player& currentPlayer = players[env.currentPlayer];
-        Card& topCard = env.discardPile.back();
+        Player& currentPlayer = players[env.getCurrentPlayerIndex()];
+        Card& topCard = env.getTopDiscard();
 
         // Display current player, top card, and hand
         cout << endl << currentPlayer.name << "'s turn!" << endl;
@@ -199,7 +197,7 @@ int main() {
             cout << currentPlayer.name << " played a card!" << endl;
         } else {
             cout << currentPlayer.name << " has to draw a card." << endl;
-            currentPlayer.hand.push_back(drawCard(env));
+            currentPlayer.hand.push_back(env.drawCard());
         }
 
         // Check for winner
@@ -209,8 +207,7 @@ int main() {
         }
 
         // Move to next player
-        env.currentPlayer = (env.currentPlayer + env.direction + players.size())
-                             % players.size();
+        env.advancePlayer(players.size());
     }
 
     return 0;
