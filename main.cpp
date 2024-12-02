@@ -62,12 +62,24 @@ public:
         return drawnCard;
     }
 
-    // Add a card to the discard pile
+    /***************************************************************************
+    * addToDiscardPile
+    * ___________________________________________________________________________
+    *
+    * This function will allow the chosen card to be added to the discardPile
+    * vector.
+    ***************************************************************************/
     void addToDiscardPile(const Card& card) {
         discardPile.push_back(card);
     }
 
-    // Get the top card of the discard pile
+    /***************************************************************************
+    * addToDiscardPile
+    * ___________________________________________________________________________
+    *
+    * This function will allow access to the top card of the discardPile
+    * vector.
+    ***************************************************************************/
     Card& getTopDiscard() {
         if (discardPile.empty()) {
             throw runtime_error("The discard pile is empty!");
@@ -123,29 +135,44 @@ public:
         }
     }
 
-    // Advance to the next player
+    /***************************************************************************
+    * advancePlayer
+    * ___________________________________________________________________________
+    *
+    * This function will allow the movement to the next element in the
+    * numPlayers.
+    ***************************************************************************/
     void advancePlayer(int numPlayers) {
         currentPlayer = (currentPlayer + direction + numPlayers) % numPlayers;
     }
 
-    // Reverse the direction of play
+    /***************************************************************************
+    * reverseDirection
+    * ___________________________________________________________________________
+    *
+    * This function will allow the reverse card to be used effectively and will
+    * cause the flow of the game to go backwards in the vector.
+    ***************************************************************************/
     void reverseDirection() {
         direction *= -1;
     }
 
-    // Get the current player index
+    /***************************************************************************
+    * getCurrentPlayerIndex
+    * ___________________________________________________________________________
+    *
+    * This function allows the ability to access the element correspondence
+    * with any current player.
+    ***************************************************************************/
     int getCurrentPlayerIndex() const {
         return currentPlayer;
     }
 }; 
 
 // Function Prototypes
-//void initializeDeck(vector<Card> &deck);
-//Card drawCard(Environment &env);
 void dealer(Environment &env, vector<Player<string>> &players, int numCards);
 void displayHand(const vector<Card> &hand);
 bool playTurn(Player<string> &player, Environment &env);
-//void shuffle(vector<Card> &deck);
 
 // Main Function
 int main() {
@@ -229,13 +256,49 @@ int main() {
  *  - Player &player : players // accesses the ve
  ******************************************************************************/
 void dealer(Environment &env, vector<Player<string>> &players, int numCards) {
+    
+    // Outer loop to iterate over the number of cards to be dealt
     for (int i = 0; i < numCards; ++i) {
-        // Traditional for loop to iterate through players
+        
+        // Loop through each player to give them a card
         for (int j = 0; j < players.size(); ++j) {
-            players[j].hand.push_back(env.drawCard());
+            
+            // Inform that the card is being dealt to the player
+            cout << "Dealing card " << i + 1 << " to player ";
+            cout << players[j].name << endl;
+            
+            // Draw a card from the environment and add it to the player's hand
+            Card drawnCard = env.drawCard(); // Store the drawn card temporarily
+            
+            // Debugging: Show the card drawn
+            cout << "Player " << players[j].name << " drew a card: "
+                 << drawnCard.color << " " << drawnCard.number << endl;
+            
+            // Add the card to the player's hand
+            players[j].hand.push_back(drawnCard);
+
+            // Print the player's hand after the card has been dealt
+            cout << "Player " << players[j].name << "'s hand now contains: ";
+            
+            // Loop through the player's hand to display the cards
+            for (int k = 0; k < players[j].hand.size(); ++k) {
+                cout << players[j].hand[k].color << " ";
+                cout << players[j].hand[k].number << " ";
+            }
+            
+            cout << endl;
+
         }
+        
+        cout << "Round " << i + 1 << " complete. Moving to the next round.";
+        cout << endl;
+        
     }
+    
+    cout << "All cards have been dealt!" << endl;
+
 }
+
 
 
 /*******************************************************************************
@@ -304,13 +367,23 @@ bool playTurn(Player<string>& player, Environment& env) {
             string newColor;
             cout << "(Red, Yellow, Green, Blue): ";
             cin >> newColor;
+            
+            // Convert input to uppercase
+            for (char &c : newColor){
+                c = toupper(c);
+            }
 
             // Ensure the chosen color is valid
-            while (newColor != "Red" && newColor != "Yellow" 
-                   && newColor != "Green" && newColor != "Blue") {
+            while (newColor != "RED" && newColor != "YELLOW" 
+                   && newColor != "GREEN" && newColor != "BLUE") {
                 cout << "Invalid color. Choose a new color ";
                 cout << "(Red, Yellow, Green, Blue): ";
                 cin >> newColor;
+                
+                // Convert input to uppercase
+                for (char &c : newColor){
+                    c = toupper(c);
+                }
             }
 
             selectedCard.color = newColor;
