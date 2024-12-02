@@ -277,4 +277,4 @@ void shuffle(vector<Card> &deck){
         // Swaps elements
         swap(deck[i], deck[j]);
     }
-}"# CIS_17A"  git init git add main.cpp
+}
