@@ -10,14 +10,9 @@
  * following chronologically. A match can only be made if a player has a card 
  * with either: the same color or the same number. If the player 
  * has no matches, they must pick up a card from the Draw Pile. (For purposes of 
- * this project it will not allow the picked up card to be played).
- * 
- * For the purpose of this code, I will be leaving out the following from the
- * traditional game of Uno:
- *  - Wild Draw 4
- *  - Draw Two
- *  - Skip
- *  - Reverse
+ * this project it will not allow the picked up card to be played). There will
+ * be five special cards circulated through the game, including a Wild Draw 4
+ * card, a Wild card, a Draw Two card, a Skip card, and a Reverse card.
  * _____________________________________________________________________________
  ******************************************************************************/
 #include "libraries.h"
@@ -47,7 +42,7 @@ struct Environment {
 // Function Prototypes
 void initializeDeck(vector<Card> &deck);
 Card drawCard(Environment &env);
-void dealer(Environment  &env, vector<Player> &players, int numCards);
+void dealer(Environment &env, vector<Player> &players, int numCards);
 void displayHand(const vector<Card> &hand);
 bool playTurn(Player &player, Environment &env);
 void shuffle(vector<Card> &deck);
@@ -136,6 +131,8 @@ void initializeDeck(vector<Card>& deck) {
     const int elements = 4; // number of colors
     const int maxNum = 9;   // Cards can only go to 9
     string colors[elements] = {"Red", "Yellow", "Green", "Blue"};
+    
+    // Loop to add cards
     for (int i = 0; i < elements; ++i) { 
         for (int j = 0; j <= maxNum; ++j) {  // Iterate over the numbers 0 to 9
             Card card;
@@ -143,14 +140,42 @@ void initializeDeck(vector<Card>& deck) {
             card.number = to_string(j);  // Convert the number to a string
             deck.push_back(card);
         }
+        
+        // For Draw Two, Kip, and Reverse Cards
+        for (int k = 0; k < 2; ++k){
+            Card drawTwo, skip, reverse;
+        
+            // Draw Two
+            drawTwo.color = colors[i];
+            drawTwo.number = "Draw Two";
+            deck.push_back(drawTwo);
+        
+            // Skip
+            drawTwo.color = colors[i];
+            drawTwo.number = "Skip";
+            deck.push_back(skip);
+        
+            // Reverse
+            drawTwo.color = colors[i];
+            drawTwo.number = "Reverse";
+            deck.push_back(reverse);
+        }
     }
     
-    // For Wild Card
+    // For Wild card
     for(int i = 0; i < 4; ++i){
         Card wildCard;
         wildCard.color = "Wild";
         wildCard.number = "Card";
         deck.push_back(wildCard);
+    }
+    
+    // For Wild Draw card
+    for(int i = 0; i < 4; ++i){
+        Card wildDrawFour;
+        wildDrawFour.color = "Wild";
+        wildDrawFour.number = "Draw Four";
+        deck.push_back(wildDrawFour);
     }
 }
 
