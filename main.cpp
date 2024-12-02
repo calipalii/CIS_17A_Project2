@@ -1,4 +1,4 @@
-// Calista Ruiz	                   CSC17A                              Project 1    
+// Calista Ruiz	                   CSC17A                              Project 2    
 /*******************************************************************************
  * UNO
  * ___________________________________________________________________________
@@ -26,9 +26,10 @@ struct Card {
 };
 
 // Player Structure
+template <typename T>
 struct Player {
     vector<Card> hand;
-    string name;
+    T name;
 };
 
 // Environment Class
@@ -141,9 +142,9 @@ public:
 // Function Prototypes
 //void initializeDeck(vector<Card> &deck);
 //Card drawCard(Environment &env);
-void dealer(Environment &env, vector<Player> &players, int numCards);
+void dealer(Environment &env, vector<Player<string>> &players, int numCards);
 void displayHand(const vector<Card> &hand);
-bool playTurn(Player &player, Environment &env);
+bool playTurn(Player<string> &player, Environment &env);
 //void shuffle(vector<Card> &deck);
 
 // Main Function
@@ -151,7 +152,7 @@ int main() {
     srand(static_cast<unsigned int>(time(0)));
 
     Environment env;
-    vector<Player> players;
+    vector<Player<string>> players;
     int numPlayers;
     int numCards = 7;  // Each player starts with 7 cards
 
@@ -171,21 +172,28 @@ int main() {
 
     // Initialize players and deal cards
     for (int i = 0; i < numPlayers; ++i) {
-        Player player;
+        Player<string> player;
         cout << "Enter name for player " << i + 1 << ": ";
         cin >> player.name;
         players.push_back(player);
     }
+    
     dealer(env, players, numCards);
 
+    // Ensures a wild card or a wild draw four will not be the first card
+    Card initialCard;
+    do{
+        initialCard = env.drawCard();
+    } while(initialCard.color == "Wild");
+        
     // Set starting card for discard pile
     env.addToDiscardPile(env.drawCard());
-
+    
     // Game loop
     bool gameOver = false;
 
     while (!gameOver) {
-        Player& currentPlayer = players[env.getCurrentPlayerIndex()];
+        Player<string>& currentPlayer = players[env.getCurrentPlayerIndex()];
         Card& topCard = env.getTopDiscard();
 
         // Display current player, top card, and hand
@@ -220,7 +228,7 @@ int main() {
  * This function will deal seven cards to each of the participating players.
  *  - Player &player : players // accesses the ve
  ******************************************************************************/
-void dealer(Environment &env, vector<Player> &players, int numCards) {
+void dealer(Environment &env, vector<Player<string>> &players, int numCards) {
     for (int i = 0; i < numCards; ++i) {
         // Traditional for loop to iterate through players
         for (int j = 0; j < players.size(); ++j) {
@@ -239,13 +247,32 @@ void dealer(Environment &env, vector<Player> &players, int numCards) {
  *  - hand[i].color  // displays the current color element in the loop
  *  - hand[i].number // displays the current number in the loop
  ******************************************************************************/
-// FUNCTION - Displays the player's hand
 void displayHand(const vector<Card> &hand) {
+    // Start a loop to iterate through each card in the hand
     for (int i = 0; i < hand.size(); ++i) {
-        cout << i + 1 << ". " << hand[i].color << " " << hand[i].number << endl;
+        // Output the card's index, starting at 1
+        cout << i + 1;
+        
+        // Print the period and space after the index
+        cout << ". ";
+        
+        // Output the color of the current card
+        cout << hand[i].color;
+        
+        // Print a space between the color and number
+        cout << " ";
+        
+        // Output the number or special type of the current card
+        cout << hand[i].number;
+        
+        // Move to the next line for the next card
+        cout << endl;
     }
+
+    // Print a blank line after displaying all cards in the hand
     cout << endl;
 }
+
 
 /*******************************************************************************
  * playTurn
@@ -255,7 +282,7 @@ void displayHand(const vector<Card> &hand) {
  * play. It will make sure that the chosen card matches with the top card,
  * otherwise an error message will appear.  
  ******************************************************************************/
-bool playTurn(Player& player, Environment& env) {
+bool playTurn(Player<string>& player, Environment& env) {
     Card& topCard = env.getTopDiscard();
     int choice;
 
@@ -269,9 +296,12 @@ bool playTurn(Player& player, Environment& env) {
         Card selectedCard = player.hand[choice - 1];
 
         // If the card is a Wild Card
-        if (selectedCard.number == "Card") {
+        if (selectedCard.number == "Draw Four" || 
+            selectedCard.number == "Card") {
+            cout << "You played a " << selectedCard.number;
+            cout << ". Choose a new color! ";
+            
             string newColor;
-            cout << "You played a Wild Card! Choose a new color ";
             cout << "(Red, Yellow, Green, Blue): ";
             cin >> newColor;
 
@@ -283,25 +313,82 @@ bool playTurn(Player& player, Environment& env) {
                 cin >> newColor;
             }
 
-            // Set the new color for the Wild Card and add to discard pile
             selectedCard.color = newColor;
             env.addToDiscardPile(selectedCard);
-
-            // Remove the card from the player's hand
             player.hand.erase(player.hand.begin() + (choice - 1));
+
+            // Wild Draw Four adds 4 cards to the next player
+            if (selectedCard.number == "Wild Draw Four") {
+                cout << "Next player draws 4 cards!" << endl;
+                env.advancePlayer(env.getCurrentPlayerIndex());
+                Player<string>& nextPlayer = player; // Access next player
+                for (int i = 0; i < 4; ++i) {
+                    nextPlayer.hand.push_back(env.drawCard());
+                }
+            }
+
             return true;
         }
-        
-        // Test to see if chosen card matches top card in any form
+
+        // If the card is Draw Two
+        if (selectedCard.number == "Draw Two" && 
+           (selectedCard.color == topCard.color || 
+            selectedCard.number == topCard.number)) {
+            
+            env.addToDiscardPile(selectedCard);
+            player.hand.erase(player.hand.begin() + (choice - 1));
+
+            cout << "Next player draws 2 cards!" << endl;
+            env.advancePlayer(env.getCurrentPlayerIndex());
+            Player<string>& nextPlayer = player; // Access next player
+            for (int i = 0; i < 2; ++i) {
+                nextPlayer.hand.push_back(env.drawCard());
+            }
+
+            return true;
+        }
+
+        // If the card is Skip
+        if (selectedCard.number == "Skip" && 
+           (selectedCard.color == topCard.color 
+           || selectedCard.number == topCard.number)){
+            
+            env.addToDiscardPile(selectedCard);
+            player.hand.erase(player.hand.begin() + (choice - 1));
+
+            cout << "Next player is skipped!" << endl;
+            env.advancePlayer(2); // Skip the next player
+
+            return true;
+        }
+
+        // If the card is Reverse
+        if (selectedCard.number == "Reverse" && 
+           (selectedCard.color == topCard.color 
+           || selectedCard.number == topCard.number)){
+            
+            env.addToDiscardPile(selectedCard);
+            player.hand.erase(player.hand.begin() + (choice - 1));
+
+            cout << "Play direction reversed!" << endl;
+            env.reverseDirection();
+
+            return true;
+        }
+
+        // If the card matches by color or number
         if (selectedCard.color == topCard.color 
-            || selectedCard.number == topCard.number) {
+           || selectedCard.number == topCard.number) {
+            
             env.addToDiscardPile(selectedCard);
             player.hand.erase(player.hand.begin() + (choice - 1));
             return true;
         } else {
             // Error prompt
-            cout << "Invalid match! Try Again." << endl;
+            cout << "Invalid match! Try again." << endl;
             return playTurn(player, env);
         }
     }
+    
+    return false;
 }
