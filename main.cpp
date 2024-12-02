@@ -214,83 +214,6 @@ int main() {
 }
 
 /*******************************************************************************
- * initializeDeck
- * ___________________________________________________________________________
- *
- * This function will initialize the deck of cards that the player's will be
- * utilizing. It will initialize the colors and numbers of each card.
- *  - colors[] // holds colors
- *  - Card card // temp object
- *  - deck.push_back(card) // card added to vector
- ******************************************************************************
-void initializeDeck(vector<Card>& deck) {
-    const int elements = 4; // number of colors
-    const int maxNum = 9;   // Cards can only go to 9
-    string colors[elements] = {"Red", "Yellow", "Green", "Blue"};
-    
-    // Loop to add cards
-    for (int i = 0; i < elements; ++i) { 
-        for (int j = 0; j <= maxNum; ++j) {  // Iterate over the numbers 0 to 9
-            Card card;
-            card.color = colors[i];  // Access the color using the index
-            card.number = to_string(j);  // Convert the number to a string
-            deck.push_back(card);
-        }
-        
-        // For Draw Two, Kip, and Reverse Cards
-        for (int k = 0; k < 2; ++k){
-            Card drawTwo, skip, reverse;
-        
-            // Draw Two
-            drawTwo.color = colors[i];
-            drawTwo.number = "Draw Two";
-            deck.push_back(drawTwo);
-        
-            // Skip
-            drawTwo.color = colors[i];
-            drawTwo.number = "Skip";
-            deck.push_back(skip);
-        
-            // Reverse
-            drawTwo.color = colors[i];
-            drawTwo.number = "Reverse";
-            deck.push_back(reverse);
-        }
-    }
-    
-    // For Wild card
-    for(int i = 0; i < 4; ++i){
-        Card wildCard;
-        wildCard.color = "Wild";
-        wildCard.number = "Card";
-        deck.push_back(wildCard);
-    }
-    
-    // For Wild Draw card
-    for(int i = 0; i < 4; ++i){
-        Card wildDrawFour;
-        wildDrawFour.color = "Wild";
-        wildDrawFour.number = "Draw Four";
-        deck.push_back(wildDrawFour);
-    }
-}*/
-
-/*******************************************************************************
- * drawCard
- * ___________________________________________________________________________
- *
- * This function will handle the draw card occurrence in Uno, essentially
- * taking the top card of the Draw Pile.
- *  - Card drawnCard // stores the last element or the "top card"
- *  - env.drawPile.pop_back // will remove the drawn card from the Draw Pile
- ******************************************************************************
-Card drawCard(Environment &env) {
-    Card drawnCard = env.drawPile.back();
-    env.drawPile.pop_back();
-    return drawnCard;
-}*/
-
-/*******************************************************************************
  * dealer
  * ___________________________________________________________________________
  *
@@ -301,7 +224,7 @@ void dealer(Environment &env, vector<Player> &players, int numCards) {
     for (int i = 0; i < numCards; ++i) {
         // Traditional for loop to iterate through players
         for (int j = 0; j < players.size(); ++j) {
-            players[j].hand.push_back(drawCard(env));
+            players[j].hand.push_back(env.drawCard());
         }
     }
 }
@@ -333,7 +256,7 @@ void displayHand(const vector<Card> &hand) {
  * otherwise an error message will appear.  
  ******************************************************************************/
 bool playTurn(Player& player, Environment& env) {
-    Card& topCard = env.discardPile.back();
+    Card& topCard = env.getTopDiscard();
     int choice;
 
     // Card selection prompt
@@ -362,7 +285,7 @@ bool playTurn(Player& player, Environment& env) {
 
             // Set the new color for the Wild Card and add to discard pile
             selectedCard.color = newColor;
-            env.discardPile.push_back(selectedCard);
+            env.addToDiscardPile(selectedCard);
 
             // Remove the card from the player's hand
             player.hand.erase(player.hand.begin() + (choice - 1));
@@ -372,7 +295,7 @@ bool playTurn(Player& player, Environment& env) {
         // Test to see if chosen card matches top card in any form
         if (selectedCard.color == topCard.color 
             || selectedCard.number == topCard.number) {
-            env.discardPile.push_back(selectedCard);
+            env.addToDiscardPile(selectedCard);
             player.hand.erase(player.hand.begin() + (choice - 1));
             return true;
         } else {
@@ -382,20 +305,3 @@ bool playTurn(Player& player, Environment& env) {
         }
     }
 }
-
-
-/*******************************************************************************
- * shuffle
- * ___________________________________________________________________________
- *
- * This function will shuffle the elements in the initialize deck array to make
- * sure the cards are truly random.
- ******************************************************************************
-void shuffle(vector<Card> &deck){
-    // Loop to swap cards
-    for(int i = deck.size() - 1; i > 0; --i){
-        int j = rand() % (i + 1); // Random number gen for rand index
-        // Swaps elements
-        swap(deck[i], deck[j]);
-    }
-}*/
