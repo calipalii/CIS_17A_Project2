@@ -31,13 +31,112 @@ struct Player {
     string name;
 };
 
-// Environment Structure
-struct Environment {
+// Environment Class
+class Environment {
+private:
     vector<Card> drawPile;
     vector<Card> discardPile;
     int currentPlayer;
     int direction;
-};
+
+public:
+    // Constructor
+    Environment() : currentPlayer(0), direction(1) {}
+
+    /***************************************************************************
+    * drawCard
+    * __________________________________________________________________________
+    *
+    * This function will handle the draw card occurrence in Uno, essentially
+    * taking the top card of the Draw Pile.
+    *  - Card drawnCard // stores the last element or the "top card"
+    *  - env.drawPile.pop_back // will remove the drawn card from the Draw Pile
+    ***************************************************************************/
+    Card drawCard() {
+        if (drawPile.empty()) {
+            throw runtime_error("The draw pile is empty!");
+        }
+        Card drawnCard = drawPile.back();
+        drawPile.pop_back();
+        return drawnCard;
+    }
+
+    // Add a card to the discard pile
+    void addToDiscardPile(const Card& card) {
+        discardPile.push_back(card);
+    }
+
+    // Get the top card of the discard pile
+    Card& getTopDiscard() {
+        if (discardPile.empty()) {
+            throw runtime_error("The discard pile is empty!");
+        }
+        return discardPile.back();
+    }
+
+    /***************************************************************************
+    * initializeDeck
+    * __________________________________________________________________________
+    *
+    * This function will initialize the deck of cards that the player's will be
+    * utilizing. It will initialize the colors and numbers of each card.
+    *  - colors[] // holds colors
+    *  - Card card // temp object
+    *  - deck.push_back(card) // card added to vector
+    ***************************************************************************/
+    void initializeDeck() {
+        const int elements = 4;  // Number of colors
+        const int maxNum = 9;    // Cards can only go up to 9
+        string colors[elements] = {"Red", "Yellow", "Green", "Blue"};
+
+        for (int i = 0; i < elements; ++i) {
+            for (int j = 0; j <= maxNum; ++j) {
+                Card card;
+                card.color = colors[i];
+                card.number = to_string(j);
+                drawPile.push_back(card);
+            }
+            for (int k = 0; k < 2; ++k) {
+                drawPile.push_back(Card{colors[i], "Draw Two"});
+                drawPile.push_back(Card{colors[i], "Skip"});
+                drawPile.push_back(Card{colors[i], "Reverse"});
+            }
+        }
+        for (int i = 0; i < 4; ++i) {
+            drawPile.push_back(Card{"Wild", "Card"});
+            drawPile.push_back(Card{"Wild", "Draw Four"});
+        }
+    }
+    
+    /***************************************************************************
+    * shuffle
+    * __________________________________________________________________________
+    *
+    * This function will shuffle the elements in the initialize deck array to
+    * make sure the cards are truly random.
+    ***************************************************************************/
+    void shuffleDeck() {
+        for (int i = drawPile.size() - 1; i > 0; --i) {
+            int j = rand() % (i + 1);
+            swap(drawPile[i], drawPile[j]);
+        }
+    }
+
+    // Advance to the next player
+    void advancePlayer(int numPlayers) {
+        currentPlayer = (currentPlayer + direction + numPlayers) % numPlayers;
+    }
+
+    // Reverse the direction of play
+    void reverseDirection() {
+        direction *= -1;
+    }
+
+    // Get the current player index
+    int getCurrentPlayerIndex() const {
+        return currentPlayer;
+    }
+}; 
 
 // Function Prototypes
 void initializeDeck(vector<Card> &deck);
@@ -126,7 +225,7 @@ int main() {
  *  - colors[] // holds colors
  *  - Card card // temp object
  *  - deck.push_back(card) // card added to vector
- ******************************************************************************/
+ ******************************************************************************
 void initializeDeck(vector<Card>& deck) {
     const int elements = 4; // number of colors
     const int maxNum = 9;   // Cards can only go to 9
@@ -177,7 +276,7 @@ void initializeDeck(vector<Card>& deck) {
         wildDrawFour.number = "Draw Four";
         deck.push_back(wildDrawFour);
     }
-}
+}*/
 
 /*******************************************************************************
  * drawCard
@@ -187,12 +286,12 @@ void initializeDeck(vector<Card>& deck) {
  * taking the top card of the Draw Pile.
  *  - Card drawnCard // stores the last element or the "top card"
  *  - env.drawPile.pop_back // will remove the drawn card from the Draw Pile
- ******************************************************************************/
+ ******************************************************************************
 Card drawCard(Environment &env) {
     Card drawnCard = env.drawPile.back();
     env.drawPile.pop_back();
     return drawnCard;
-}
+}*/
 
 /*******************************************************************************
  * dealer
@@ -294,7 +393,7 @@ bool playTurn(Player& player, Environment& env) {
  *
  * This function will shuffle the elements in the initialize deck array to make
  * sure the cards are truly random.
- ******************************************************************************/
+ ******************************************************************************
 void shuffle(vector<Card> &deck){
     // Loop to swap cards
     for(int i = deck.size() - 1; i > 0; --i){
@@ -302,4 +401,4 @@ void shuffle(vector<Card> &deck){
         // Swaps elements
         swap(deck[i], deck[j]);
     }
-}
+}*/
